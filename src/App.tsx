@@ -1,7 +1,13 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Prep from './Prep';
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-      <h1 className="text-4xl font-bold">Loom Initialized</h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/prep" element={<Prep />} />
+        <Route path="*" element={<Navigate to="/prep" replace />} />
+      </Routes>
+    </Router>
   )
 }
