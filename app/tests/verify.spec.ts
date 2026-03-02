@@ -80,4 +80,13 @@ test('Prep Route UI Verification', async ({ page }) => {
   const onionsLabel = page.locator('li span').filter({ hasText: 'Onions' }).first();
   const onionsClass = await onionsLabel.evaluate((el) => el.className);
   expect(onionsClass).not.toContain('border-cobalt'); // It should NOT be active
+
+  // 5. Test Keyboard Accessibility
+  await page.keyboard.press('Space');
+  await expect(page.locator('text=Peel and dice carrots.')).not.toBeVisible();
+  await expect(page.locator('text=Chop onions finely.')).toBeVisible();
+  
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('text=Chop onions finely.')).not.toBeVisible();
+  await expect(page.locator('text=Dice celery and mince garlic.')).toBeVisible();
 });
