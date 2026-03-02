@@ -53,4 +53,31 @@ test('Prep Route UI Verification', async ({ page }) => {
   await expect(serifNotes).toBeVisible();
   const fontFamily = await serifNotes.evaluate((el) => window.getComputedStyle(el).fontFamily);
   expect(fontFamily).toMatch(/serif/i);
+
+  // Additional elements to verify from new implementation
+  // 1. Header icon (lucide-react ChefHat adds svg within a specific structure)
+  await expect(page.locator('svg.lucide-chef-hat')).toBeVisible();
+
+  // 2. Progress Bar
+  const progressBar = page.locator('.bg-cobalt').first(); // The progress bar div
+  await expect(progressBar).toBeVisible();
+  // Check style width of progress bar (should be 50% for 2nd step out of 4)
+  const styleWidth = await progressBar.evaluate((el) => window.getComputedStyle(el).width);
+  expect(styleWidth).not.toBe('0px');
+
+  // 3. Bottom navigation
+  await expect(page.locator('text=2 / 4')).toBeVisible();
+  await expect(page.locator('text=Click anywhere to advance')).toBeVisible();
+  await expect(page.locator('svg.lucide-chevron-right')).toBeVisible();
+
+  // 4. Active ingredient style
+  // On step 2 ("Peel and dice carrots."), "Carrots" should be active.
+  // We use filter to find the span in the top list to avoid matching the main instruction text.
+  const carrotsLabel = page.locator('li span').filter({ hasText: 'Carrots' }).first();
+  const carrotsClass = await carrotsLabel.evaluate((el) => el.className);
+  expect(carrotsClass).toContain('border-cobalt'); // It should have the border-b-2 border-cobalt styling
+  
+  const onionsLabel = page.locator('li span').filter({ hasText: 'Onions' }).first();
+  const onionsClass = await onionsLabel.evaluate((el) => el.className);
+  expect(onionsClass).not.toContain('border-cobalt'); // It should NOT be active
 });
