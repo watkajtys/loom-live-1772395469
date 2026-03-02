@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Ingredient {
   id: string;
@@ -16,7 +16,7 @@ interface Step {
 
 export default function Prep() {
   const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set());
-  const [activeStepId, setActiveStepId] = useState<string>('1');
+  const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
 
   const ingredients: Ingredient[] = [
     { id: 'i1', name: 'Carrots', amount: '2 cups', notes: 'peeled and diced' },
@@ -42,70 +42,96 @@ export default function Prep() {
     setCheckedIngredients(newChecked);
   };
 
+  const handleNext = () => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex(currentStepIndex + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1);
+    }
+  };
+
+  const currentStep = steps[currentStepIndex];
+
   return (
-    <div className="min-h-screen bg-alabaster text-charcoal font-sans p-8 md:p-12">
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div className="min-h-screen bg-alabaster text-charcoal font-sans flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
+      
+      {/* Header */}
+      <div className="w-full max-w-5xl mb-16 text-center">
+        <h1 className="text-sm uppercase tracking-widest text-cobalt font-bold mb-8">Mise en Place</h1>
         
-        {/* Ingredients Section */}
-        <section>
-          <h1 className="text-3xl font-bold mb-6 text-cobalt tracking-tight">Mise en Place</h1>
-          <ul className="space-y-4">
-            {ingredients.map((ing) => {
-              const isChecked = checkedIngredients.has(ing.id);
-              return (
-                <li 
-                  key={ing.id}
-                  className={`flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer border border-transparent ${isChecked ? 'bg-gray-100 opacity-60' : 'hover:border-gray-200 hover:bg-white shadow-sm'}`}
-                  onClick={() => toggleIngredient(ing.id)}
-                >
-                  <button className="mt-0.5 text-cobalt flex-shrink-0 focus:outline-none" aria-label={`Toggle ${ing.name}`}>
-                    {isChecked ? <CheckCircle2 className="w-5 h-5 text-cobalt" /> : <Circle className="w-5 h-5 text-gray-400" />}
-                  </button>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-baseline">
-                      <span className={`font-medium ${isChecked ? 'line-through' : ''}`}>{ing.name}</span>
-                      <span className="text-sm font-medium text-gray-600">{ing.amount}</span>
-                    </div>
-                    {ing.notes && (
-                      <p className="text-sm text-gray-500 font-serif italic mt-1">{ing.notes}</p>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        {/* Preparation Steps Section */}
-        <section>
-          <h2 className="text-3xl font-bold mb-6 text-cobalt tracking-tight">Preparation Steps</h2>
-          <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-300 before:to-transparent">
-            {steps.map((step, index) => {
-              const isActive = activeStepId === step.id;
-              return (
-                <div 
-                  key={step.id}
-                  className={`relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active cursor-pointer ${isActive ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
-                  onClick={() => setActiveStepId(step.id)}
-                >
-                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 bg-alabaster shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ${isActive ? 'border-cobalt text-cobalt font-bold' : 'border-gray-300 text-gray-500'}`}>
-                    {index + 1}
-                  </div>
-                  <div className={`w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border ${isActive ? 'bg-white border-cobalt shadow-md' : 'bg-gray-50 border-gray-200'}`}>
-                    <p className={`font-medium text-lg leading-snug ${isActive ? 'text-charcoal' : 'text-gray-600'}`}>
-                      {step.instruction}
-                    </p>
-                    {step.notes && (
-                      <p className="text-sm text-gray-500 font-serif italic mt-2">{step.notes}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
+        {/* Ingredients resting quietly at the top */}
+        <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
+          {ingredients.map((ing) => {
+            const isChecked = checkedIngredients.has(ing.id);
+            return (
+              <li 
+                key={ing.id}
+                className={`flex items-center gap-2 cursor-pointer transition-opacity ${isChecked ? 'opacity-40 line-through' : 'opacity-80 hover:opacity-100'}`}
+                onClick={() => toggleIngredient(ing.id)}
+              >
+                <button className="text-cobalt focus:outline-none" aria-label={`Toggle ${ing.name}`}>
+                  {isChecked ? <CheckCircle2 className="w-4 h-4 text-cobalt" /> : <Circle className="w-4 h-4 text-gray-400" />}
+                </button>
+                <span className="font-medium text-sm">
+                  {ing.name} <span className="text-gray-500 font-normal">({ing.amount})</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
+
+      {/* Singular holding space for the current step */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-3xl">
+        <div className="text-center transition-all duration-500 ease-in-out">
+          <div className="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-sm border border-gray-100 text-cobalt font-bold text-lg">
+            {currentStepIndex + 1}
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-medium leading-tight text-charcoal mb-6 max-w-2xl mx-auto">
+            {currentStep.instruction}
+          </h2>
+          {currentStep.notes && (
+            <p className="text-xl text-gray-500 font-serif italic mt-4 max-w-xl mx-auto">
+              {currentStep.notes}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Step Navigation */}
+      <div className="w-full max-w-3xl mt-16 flex items-center justify-between">
+        <button 
+          onClick={handlePrev}
+          disabled={currentStepIndex === 0}
+          className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all ${currentStepIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:bg-gray-100 text-gray-600'}`}
+        >
+          <ChevronLeft className="w-5 h-5" />
+          <span className="font-medium">Previous</span>
+        </button>
+        
+        <div className="flex gap-2">
+          {steps.map((_, idx) => (
+            <div 
+              key={idx} 
+              className={`w-2 h-2 rounded-full transition-all ${idx === currentStepIndex ? 'bg-cobalt scale-125' : 'bg-gray-300'}`}
+            />
+          ))}
+        </div>
+
+        <button 
+          onClick={handleNext}
+          disabled={currentStepIndex === steps.length - 1}
+          className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all ${currentStepIndex === steps.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 bg-cobalt text-white hover:bg-blue-800 shadow-sm'}`}
+        >
+          <span className="font-medium">Next</span>
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+
     </div>
   );
 }

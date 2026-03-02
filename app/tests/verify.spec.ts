@@ -33,5 +33,18 @@ test('Prep Route UI Verification', async ({ page }) => {
 
   // Verify specific texts
   await expect(page.locator('text=Mise en Place')).toBeVisible();
-  await expect(page.locator('text=Preparation Steps')).toBeVisible();
+
+  // Verify the singular monolithic step view
+  // First step should be visible
+  await expect(page.locator('text=Gather all ingredients and tools.')).toBeVisible();
+  
+  // Second step should NOT be visible
+  await expect(page.locator('text=Peel and dice carrots.')).not.toBeVisible();
+
+  // Click Next
+  await page.getByRole('button', { name: 'Next' }).click();
+
+  // Verify step transition
+  await expect(page.locator('text=Gather all ingredients and tools.')).not.toBeVisible();
+  await expect(page.locator('text=Peel and dice carrots.')).toBeVisible();
 });
