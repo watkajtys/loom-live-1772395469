@@ -41,10 +41,16 @@ test('Prep Route UI Verification', async ({ page }) => {
   // Second step should NOT be visible
   await expect(page.locator('text=Peel and dice carrots.')).not.toBeVisible();
 
-  // Click Next
-  await page.getByRole('button', { name: 'Next' }).click();
+  // Click the body directly to simulate the giant forgiving surface
+  await page.locator('body').click();
 
   // Verify step transition
   await expect(page.locator('text=Gather all ingredients and tools.')).not.toBeVisible();
   await expect(page.locator('text=Peel and dice carrots.')).toBeVisible();
+
+  // Verify that the secondary elegant italic serif font is used
+  const serifNotes = page.locator('text=Keep pieces uniform.');
+  await expect(serifNotes).toBeVisible();
+  const fontFamily = await serifNotes.evaluate((el) => window.getComputedStyle(el).fontFamily);
+  expect(fontFamily).toMatch(/serif/i);
 });

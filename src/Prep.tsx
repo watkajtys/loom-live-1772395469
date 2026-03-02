@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { CheckCircle2, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Ingredient {
   id: string;
@@ -15,7 +14,6 @@ interface Step {
 }
 
 export default function Prep() {
-  const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set());
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
 
   const ingredients: Ingredient[] = [
@@ -26,21 +24,11 @@ export default function Prep() {
   ];
 
   const steps: Step[] = [
-    { id: '1', instruction: 'Gather all ingredients and tools.' },
+    { id: '1', instruction: 'Gather all ingredients and tools.', notes: 'Preparation is key.' },
     { id: '2', instruction: 'Peel and dice carrots.', notes: 'Keep pieces uniform.' },
     { id: '3', instruction: 'Chop onions finely.' },
     { id: '4', instruction: 'Dice celery and mince garlic.' },
   ];
-
-  const toggleIngredient = (id: string) => {
-    const newChecked = new Set(checkedIngredients);
-    if (newChecked.has(id)) {
-      newChecked.delete(id);
-    } else {
-      newChecked.add(id);
-    }
-    setCheckedIngredients(newChecked);
-  };
 
   const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {
@@ -48,16 +36,13 @@ export default function Prep() {
     }
   };
 
-  const handlePrev = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
-    }
-  };
-
   const currentStep = steps[currentStepIndex];
 
   return (
-    <div className="min-h-screen bg-alabaster text-charcoal font-sans flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
+    <div 
+      className="min-h-screen bg-alabaster text-charcoal font-sans flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 cursor-pointer select-none"
+      onClick={handleNext}
+    >
       
       {/* Header */}
       <div className="w-full max-w-5xl mb-16 text-center">
@@ -65,23 +50,17 @@ export default function Prep() {
         
         {/* Ingredients resting quietly at the top */}
         <ul className="flex flex-wrap justify-center gap-x-8 gap-y-4">
-          {ingredients.map((ing) => {
-            const isChecked = checkedIngredients.has(ing.id);
-            return (
-              <li 
-                key={ing.id}
-                className={`flex items-center gap-2 cursor-pointer transition-opacity ${isChecked ? 'opacity-40 line-through' : 'opacity-80 hover:opacity-100'}`}
-                onClick={() => toggleIngredient(ing.id)}
-              >
-                <button className="text-cobalt focus:outline-none" aria-label={`Toggle ${ing.name}`}>
-                  {isChecked ? <CheckCircle2 className="w-4 h-4 text-cobalt" /> : <Circle className="w-4 h-4 text-gray-400" />}
-                </button>
-                <span className="font-medium text-sm">
-                  {ing.name} <span className="text-gray-500 font-normal">({ing.amount})</span>
-                </span>
-              </li>
-            );
-          })}
+          {ingredients.map((ing) => (
+            <li 
+              key={ing.id}
+              className="flex items-center gap-2 opacity-80"
+            >
+              <span className="font-medium text-sm">
+                {ing.name} <span className="text-gray-500 font-normal">({ing.amount})</span>
+                {ing.notes && <span className="font-serif italic text-gray-400 ml-1">- {ing.notes}</span>}
+              </span>
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -100,36 +79,6 @@ export default function Prep() {
             </p>
           )}
         </div>
-      </div>
-
-      {/* Step Navigation */}
-      <div className="w-full max-w-3xl mt-16 flex items-center justify-between">
-        <button 
-          onClick={handlePrev}
-          disabled={currentStepIndex === 0}
-          className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all ${currentStepIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:bg-gray-100 text-gray-600'}`}
-        >
-          <ChevronLeft className="w-5 h-5" />
-          <span className="font-medium">Previous</span>
-        </button>
-        
-        <div className="flex gap-2">
-          {steps.map((_, idx) => (
-            <div 
-              key={idx} 
-              className={`w-2 h-2 rounded-full transition-all ${idx === currentStepIndex ? 'bg-cobalt scale-125' : 'bg-gray-300'}`}
-            />
-          ))}
-        </div>
-
-        <button 
-          onClick={handleNext}
-          disabled={currentStepIndex === steps.length - 1}
-          className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all ${currentStepIndex === steps.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100 bg-cobalt text-white hover:bg-blue-800 shadow-sm'}`}
-        >
-          <span className="font-medium">Next</span>
-          <ChevronRight className="w-5 h-5" />
-        </button>
       </div>
 
     </div>
