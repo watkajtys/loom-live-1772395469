@@ -29,6 +29,10 @@ test('Verify ingredients default to Charcoal text with only the active step\'s i
   const mainIconContainer = page.locator('.mb-6.text-cobalt.opacity-80.flex.justify-center.items-center > svg');
   await expect(mainIconContainer).toBeVisible();
 
+  // Verify background noise utility class is applied
+  const bgNoiseElement = page.locator('.bg-noise');
+  await expect(bgNoiseElement).toBeVisible();
+
   // Take screenshot
   await page.screenshot({ path: 'evidence.png', fullPage: true });
 });
